@@ -136,7 +136,7 @@ Setting       | Description
 1. Initialize the database by running:
 
     ~~~
-    python manage.py db upgrade
+    flask db upgrade
     ~~~
 
 1. Generate a self-signed certificate for testing, or obtain one from [Let's Encrypt](https://letsencrypt.org/).
@@ -154,13 +154,13 @@ Setting       | Description
 1. Start the doormany celery workers:
 
     ~~~
-    celery worker -A doorman.worker:celery -l INFO
+    celery -A doorman.worker:celery worker -l INFO
     ~~~
 
 1. Start doorman by running:
 
     ~~~
-    python manage.py ssl
+    python app.py
     ~~~
 
 1. Launch osquery with the [appropriate cli flags](https://osquery.readthedocs.org/en/stable/installation/cli-flags/#remote-settings-optional-for-configloggerdistributed-flags) to configure it to use the TLS enrollment, configuration, logging, and distributed read/write API's. **Below is an example osquery.flags to be used _only_ for testing**:
