@@ -2,6 +2,7 @@
 import os
 
 from flask import Flask, render_template
+from flask_assets import Environment, Bundle
 
 from doorman.api import blueprint as api
 from doorman.assets import assets
@@ -10,12 +11,12 @@ from doorman.extensions import (
     bcrypt, csrf, db, debug_toolbar, ldap_manager, log_tee, login_manager,
     mail, make_celery, migrate, rule_manager, sentry
 )
-from doorman.settings import ProdConfig
+from doorman.settings import CurrentConfig
 from doorman.tasks import celery
 from doorman.utils import get_node_health, pretty_field, pretty_operator, render_column
 
 
-def create_app(config=ProdConfig):
+def create_app(config=CurrentConfig):
     app = Flask(__name__)
     app.config.from_object(config)
     app.config.from_envvar('DOORMAN_SETTINGS', silent=True)
@@ -57,14 +58,6 @@ def register_extensions(app):
     make_celery(app, celery)
     login_manager.init_app(app)
     sentry.init_app(app)
-    if app.config['ENFORCE_SSL']:
-        # Due to architecture of flask-sslify,
-        # its constructor expects to be launched within app context
-        # unless app is passed.
-        # As a result, we cannot create sslify object in `extensions` module
-        # without getting an error.
-        from flask_sslify import SSLify
-        SSLify(app)
 
 
 def register_loggers(app):
@@ -131,7 +124,3 @@ def register_auth_method(app):
     if app.config['DOORMAN_AUTH_METHOD'] != 'doorman':
         login_manager.login_message = None
         login_manager.needs_refresh_message = None
-
-        from doorman.users.oauth import OAuthLogin
-        provider = OAuthLogin.get_provider(app.config['DOORMAN_AUTH_METHOD'])
-        provider.init_app(app)

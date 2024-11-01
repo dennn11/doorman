@@ -38,19 +38,6 @@
       "value": ""
     },
 
-    "OAUTH_CLIENT_ID": {
-      "description": "Google's client ID to use for user authentication, if not provided then auth will be disabled",
-      "required": false
-    },
-    "OAUTH_CLIENT_SECRET": {
-      "description": "Google's client ID to use for user authentication",
-      "required": false
-    },
-    "OAUTH_ALLOWED_USERS": {
-      "description": "Space-delimited list of allowed Google user IDs (or emails?)",
-      "required": false
-    },
-
     "MAIL_SERVER": {
       "description": "SMTP server to send emails with (mailing will be disabled unless this is provided)",
       "required": false

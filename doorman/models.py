@@ -2,9 +2,9 @@
 import datetime as dt
 import string
 import uuid
+from flask_bcrypt import Bcrypt
 
 from flask_login import UserMixin
-
 from doorman.database import (
     Column,
     Table,
@@ -13,14 +13,12 @@ from doorman.database import (
     Model,
     SurrogatePK,
     db,
+    JSON,
     reference_col,
     relationship,
-    ARRAY,
-    JSONB,
-    INET,
     declared_attr,
 )
-from doorman.extensions import bcrypt
+bcrypt = Bcrypt()
 
 
 querypacks = Table(
@@ -220,9 +218,9 @@ class Node(SurrogatePK, Model):
     enrolled_on = Column(db.DateTime)
     host_identifier = Column(db.String)
     last_checkin = Column(db.DateTime)
-    node_info = Column(JSONB, default={}, nullable=False)
+    node_info = Column(JSON, default={}, nullable=False)
     is_active = Column(db.Boolean, default=True, nullable=False)
-    last_ip = Column(INET, nullable=True)
+    last_ip = Column(db.String, nullable=True) # IP address will be saved as string and parsed as IPv4/IPv6
 
     tags = relationship(
         'Tag',
@@ -343,9 +341,9 @@ class FilePath(SurrogatePK, Model):
 class ResultLog(SurrogatePK, Model):
 
     name = Column(db.String, nullable=False)
-    timestamp = Column(db.DateTime, default=dt.datetime.utcnow)
+    timestamp = Column(db.DateTime, default=dt.datetime.now)
     action = Column(db.String)
-    columns = Column(JSONB)
+    columns = Column(JSON)
 
     node_id = reference_col('node', nullable=False)
     node = relationship(
@@ -378,7 +376,7 @@ class StatusLog(SurrogatePK, Model):
     message = Column(db.String)
     severity = Column(db.Integer)
     filename = Column(db.String)
-    created = Column(db.DateTime, default=dt.datetime.utcnow)
+    created = Column(db.DateTime, default=dt.datetime.now)
     version = Column(db.String)
 
     node_id = reference_col('node', nullable=False)
@@ -413,8 +411,8 @@ class DistributedQuery(SurrogatePK, Model):
 
     description = Column(db.String, nullable=True)
     sql = Column(db.String, nullable=False)
-    timestamp = Column(db.DateTime, default=dt.datetime.utcnow)
-    not_before = Column(db.DateTime, default=dt.datetime.utcnow)
+    timestamp = Column(db.DateTime, default=dt.datetime.now)
+    not_before = Column(db.DateTime, default=dt.datetime.now)
 
     def __init___(self, sql, description=None, not_before=None):
         self.sql = sql
@@ -468,8 +466,8 @@ class DistributedQueryTask(SurrogatePK, Model):
 
 class DistributedQueryResult(SurrogatePK, Model):
 
-    columns = Column(JSONB)
-    timestamp = Column(db.DateTime, default=dt.datetime.utcnow)
+    columns = Column(JSON)
+    timestamp = Column(db.DateTime, default=dt.datetime.now)
 
     distributed_query_task_id = reference_col('distributed_query_task', nullable=False)
     distributed_query_task = relationship(
@@ -496,10 +494,10 @@ class DistributedQueryResult(SurrogatePK, Model):
 class Rule(SurrogatePK, Model):
 
     name = Column(db.String, nullable=False)
-    alerters = Column(ARRAY(db.String), nullable=False)
+    alerters = Column(db.String, nullable=False) # comma separated list of alerter names
     description = Column(db.String, nullable=True)
-    conditions = Column(JSONB)
-    updated_at = Column(db.DateTime, nullable=False, default=dt.datetime.utcnow)
+    conditions = Column(JSON, nullable=True)
+    updated_at = Column(db.DateTime, nullable=False, default=dt.datetime.now())
 
     def __init__(self, name, alerters, description=None, conditions=None, updated_at=None):
         self.name = name
@@ -514,14 +512,13 @@ class Rule(SurrogatePK, Model):
             name=self.name, description=self.description or '')
         )
 
-
 class User(UserMixin, SurrogatePK, Model):
 
     username = Column(db.String(80), unique=True, nullable=False)
     email = Column(db.String)
 
     password = Column(db.String, nullable=True)
-    created_at = Column(db.DateTime, nullable=False, default=dt.datetime.utcnow)
+    created_at = Column(db.DateTime, nullable=False, default=dt.datetime.now)
 
     # oauth related stuff
     social_id = Column(db.String)
@@ -550,3 +547,4 @@ class User(UserMixin, SurrogatePK, Model):
             # still do the computation
             return bcrypt.generate_password_hash(value) and False
         return bcrypt.check_password_hash(self.password, value)
+    

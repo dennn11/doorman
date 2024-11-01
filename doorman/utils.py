@@ -11,7 +11,7 @@ import threading
 
 import six
 from flask import current_app, flash
-from jinja2 import Markup, Template
+from jinja2 import Template
 
 from doorman.database import db
 from doorman.models import (
@@ -448,7 +448,7 @@ def render_column(value, column):
             # return a markup object so that the template where this is
             # rendered is not escaped again
 
-            return Markup(rendered)
+            # return Markup(rendered)
     except Exception:
         current_app.logger.exception(
             "Failed to render %s, returning original value",

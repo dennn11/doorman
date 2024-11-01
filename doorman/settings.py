@@ -3,8 +3,12 @@ from binascii import b2a_hex
 import datetime as dt
 import os
 
+basedir = os.path.abspath(os.path.dirname(__file__))
 
 class Config(object):
+    DOORMAN_CERTFILE = os.path.join(basedir, '../certs/osman.service.local.pem')
+    DOORMAN_KEYFILE = os.path.join(basedir, '../certs/osman.service.local.key')
+    DOORMAN_CAFILE = os.path.join(basedir, '../certs/IGP.pem')
     SECRET_KEY = b2a_hex(os.urandom(20))
 
     # Set the following to ensure Celery workers can construct an
@@ -17,9 +21,9 @@ class Config(object):
     # By default it is enabled for all production configs.
     ENFORCE_SSL = False
 
-    DEBUG = False
-    DEBUG_TB_ENABLED = False
-    DEBUG_TB_INTERCEPT_REDIRECTS = False
+    DEBUG = True
+    DEBUG_TB_ENABLED = True
+    DEBUG_TB_INTERCEPT_REDIRECTS = True
 
     APP_DIR = os.path.abspath(os.path.dirname(__file__))  # This directory
     PROJECT_ROOT = os.path.abspath(os.path.join(APP_DIR, os.pardir))
@@ -152,6 +156,7 @@ class Config(object):
     # for more information.
     # Alternatively, you can set filename to '-' to log to stdout.
     DOORMAN_LOGGING_FILENAME = '/var/log/doorman/doorman.log'
+    DOORMAN_LOGGING_FOLDER = '/var/log/doorman'
     DOORMAN_LOGGING_FORMAT = '%(asctime)s -  %(name)s - %(levelname)s - %(thread)d - %(message)s'
     DOORMAN_LOGGING_LEVEL = 'WARNING'
 
@@ -167,19 +172,10 @@ class Config(object):
 
     BCRYPT_LOG_ROUNDS = 13
 
-    DOORMAN_AUTH_METHOD = None
-    # DOORMAN_AUTH_METHOD = 'doorman'
+    # DOORMAN_AUTH_METHOD = None
+    DOORMAN_AUTH_METHOD = 'doorman'
     # DOORMAN_AUTH_METHOD = 'google'
     # DOORMAN_AUTH_METHOD = 'ldap'
-
-    DOORMAN_OAUTH_GOOGLE_ALLOWED_DOMAINS = [
-    ]
-
-    DOORMAN_OAUTH_GOOGLE_ALLOWED_USERS = [
-    ]
-
-    DOORMAN_OAUTH_CLIENT_ID = ''
-    DOORMAN_OAUTH_CLIENT_SECRET = ''
 
     # When using DOORMAN_AUTH_METHOD = 'ldap', see
     # http://flask-ldap3-login.readthedocs.io/en/latest/configuration.html#core
@@ -251,7 +247,8 @@ class DevConfig(Config):
     DEBUG_TB_INTERCEPT_REDIRECTS = False
     ASSETS_DEBUG = True
 
-    SQLALCHEMY_DATABASE_URI = 'postgresql://localhost:5432/doorman'
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
+        'sqlite:///' + os.path.join(basedir, 'doorman.db')
 
     DOORMAN_ENROLL_SECRET = [
         'secret',
@@ -266,7 +263,8 @@ class TestConfig(Config):
     TESTING = True
     DEBUG = True
 
-    SQLALCHEMY_DATABASE_URI = 'postgresql://localhost:5432/doorman_test'
+    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or \
+        'sqlite:///' + os.path.join(basedir, 'doorman.db')
 
     WTF_CSRF_ENABLED = False
 

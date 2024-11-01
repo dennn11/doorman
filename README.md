@@ -73,27 +73,12 @@ Authenticating to Doorman can be handled several ways:
 * `DOORMAN_AUTH_METHOD = None`
 * `DOORMAN_AUTH_METHOD = 'doorman'`
 * `DOORMAN_AUTH_METHOD = 'ldap'`
-* `DOORMAN_AUTH_METHOD = 'google'`
 
 `None` implies no authentication, resulting in an exposed manager web interface. If you deploy the api and web interface (the manager) separately, and the manager will only be accessible from a trusted network, this may be enough for you.
 
 `doorman` utilizes username and password based authentication, managed by the backend database. Passwords are stored as bcrypt hashes with a work factor of 13 log_rounds. Doorman does not support user registration, or password reset capabilities from the web interface. This must be handled by the administrator using Doorman's [manage.py](https://github.com/mwielgoszewski/doorman/blob/master/manage.py) script.
 
 `ldap` authentication relies on an LDAP server to authenticate users. See the [flask-ldap3-login](http://flask-ldap3-login.readthedocs.io/en/latest/configuration.html) documentation for the configuration values required by the plugin in order to successfully bind and authenticate to your LDAP server.
-
-`google` uses OAuth 2.0 to authenticate with your Google credentials. To get started, you'll need to register a new web application client in the [Google API Console](https://console.developers.google.com/apis/credentials) and obtain a client_id and client_secret, along with authorize a callback URL. The following will need to be configured:
-
-* `DOORMAN_OAUTH_CLIENT_ID = "client_id"`
-* `DOORMAN_OAUTH_CLIENT_SECRET = "client_secret"`
-
-Additionally, you should configure at least one of the following:
-
-* `DOORMAN_OAUTH_GOOGLE_ALLOWED_DOMAINS`
-* `DOORMAN_OAUTH_GOOGLE_ALLOWED_USERS`
-
-Both of the aforementioned keys accept a list argument of app domains or user email addresses that are authorized to authenticate to Doorman. **WARNING**: if these values are not configured, then anyone with a Google account will be able to authenticate to your instance of Doorman!
-
-The callback URL by default is `https://SERVER_NAME/oauth2callback`. The `SERVER_NAME` is populated from the environment parameters passed from your upstream web proxy (i.e., nginx's [server_name](http://nginx.org/en/docs/http/server_names.html)).
 
 # configuration
 

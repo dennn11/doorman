@@ -155,6 +155,7 @@ tags
 .tags_sorted_by_file
 
 dev.db
+*.db
 database/
 
 # Downloaded or generated assets
@@ -166,5 +167,6 @@ doorman/static/public/
 .vagrant
 
 # Avoid commiting secrets
+certs/
 certificate.crt
 private.key

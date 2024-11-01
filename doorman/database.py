@@ -1,11 +1,14 @@
 # -*- coding: utf-8 -*-
 """Database module, including the SQLAlchemy database object and DB-related utilities."""
-from sqlalchemy.dialects.postgresql import ARRAY, JSONB, INET  # noqa
+from sqlalchemy.dialects.sqlite import VARCHAR, JSON # noqa
+from sqlalchemy.dialects.postgresql import ARRAY, JSONB, INET #noqa
 from sqlalchemy.ext.declarative import declared_attr
+from sqlalchemy.types import TypeDecorator
 from sqlalchemy.orm import relationship
 
 from doorman.compat import basestring
 from doorman.extensions import db
+import json
 
 
 # Alias common SQLAlchemy names
@@ -15,6 +18,19 @@ ForeignKey = db.ForeignKey
 UniqueConstraint = db.UniqueConstraint
 relationship = relationship
 Index = db.Index
+
+class SQLiteArray(TypeDecorator):
+    impl = VARCHAR
+
+    def process_bind_param(self, value, dialect):
+        if value is not None:
+            value = json.dumps(value)
+        return value
+
+    def process_result_value(self, value, dialect):
+        if value is not None:
+            value = json.loads(value)
+        return value
 
 
 class CRUDMixin(object):

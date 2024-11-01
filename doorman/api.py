@@ -62,7 +62,7 @@ def node_required(f):
             return jsonify(node_invalid=True)
 
         node.update(
-            last_checkin=dt.datetime.utcnow(),
+            last_checkin=dt.datetime.now(),
             last_ip=request.remote_addr,
             commit=False
         )
@@ -140,7 +140,7 @@ def enroll():
             node.host_identifier = host_identifier
 
         node.update(
-            last_checkin=dt.datetime.utcnow(),
+            last_checkin=dt.datetime.now(),
             last_ip=request.remote_addr
         )
 
@@ -165,12 +165,12 @@ def enroll():
                 request.remote_addr, host_identifier, existing_node.node_key
             )
             existing_node.update(
-                last_checkin=dt.datetime.utcnow(),
+                last_checkin=dt.datetime.now(),
                 last_ip=request.remote_addr
             )
             return jsonify(node_key=existing_node.node_key, node_invalid=False)
 
-    now = dt.datetime.utcnow()
+    now = dt.datetime.now()
 
     if node:
         node.update(host_identifier=host_identifier,

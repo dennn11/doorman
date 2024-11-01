@@ -10,8 +10,6 @@ from flask import (
 )
 from flask_login import current_user, login_user, logout_user, COOKIE_NAME
 
-from oauthlib.oauth2 import OAuth2Error
-
 from .forms import LoginForm
 from doorman.extensions import csrf, ldap_manager, login_manager
 from doorman.models import User

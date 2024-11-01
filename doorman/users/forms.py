@@ -22,8 +22,8 @@ class LoginForm(Form):
         super(LoginForm, self).__init__(*args, **kwargs)
         self.user = None
 
-    def validate(self):
-        initial_validation = super(LoginForm, self).validate()
+    def validate(self, extra_validators=None):
+        initial_validation = super(LoginForm, self).validate(extra_validators)
         if not initial_validation:
             return False
 
