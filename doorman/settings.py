@@ -251,7 +251,7 @@ class DevConfig(Config):
         'sqlite:///' + os.path.join(basedir, 'doorman.db')
 
     DOORMAN_ENROLL_SECRET = [
-        'secret',
+        'someword',
     ]
 
 
@@ -269,7 +269,7 @@ class TestConfig(Config):
     WTF_CSRF_ENABLED = False
 
     DOORMAN_ENROLL_SECRET = [
-        'secret',
+        'someword',
     ]
     DOORMAN_EXPECTS_UNIQUE_HOST_ID = False
 

@@ -46,6 +46,7 @@ pytest==8.3.3
 python-dateutil==2.9.0.post0
 python-dotenv==1.0.1
 raven==6.10.0
+redis==5.2.0
 setuptools==75.1.0
 six==1.16.0
 SQLAlchemy==2.0.35

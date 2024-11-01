@@ -74,7 +74,7 @@ class QueryForm(Form):
     packs = SelectMultipleField('Packs', default=None, choices=[
     ])
     tags = TextAreaField("Tags")
-    shard = IntegerField('Shard')
+    shard = IntegerField('Shard', validators=[Optional()])
 
     def set_choices(self):
         from doorman.models import Pack
@@ -93,7 +93,6 @@ class UpdateQueryForm(QueryForm):
 
 
 class CreateQueryForm(QueryForm):
-
     def validate(self):
         from doorman.models import Query
         initial_validation = super(CreateQueryForm, self).validate()
@@ -108,7 +107,17 @@ class CreateQueryForm(QueryForm):
             )
             return False
 
-        # TODO could do some validation of the sql query
+        if self.interval.data < 60:
+            self.interval.errors.append(
+                u"Interval must be greater than 60 seconds"
+            )
+            return False
+        
+        if self.shard.data is not None and (self.shard.data > 100 or self.shard.data < 0):
+            self.shard.errors.append(
+                u"Shard must be between 0 and 100"
+            )
+            return False
         return True
 
 

@@ -166,7 +166,7 @@ def get_node(node_id):
     node = Node.query.filter_by(id=node_id).first_or_404()
     form = UpdateNodeForm(request.form)
 
-    if form.validate_on_submit():
+    if form.is_submitted() and form.validate():
         node_info = node.node_info.copy()
 
         if form.display_name.data:
@@ -178,7 +178,7 @@ def get_node(node_id):
         node.is_active = form.is_active.data
         node.save()
 
-        if request.is_xhr:
+        if request.is_json:
             return '', 204
 
         return redirect(url_for('manage.get_node', node_id=node.id))
@@ -270,7 +270,7 @@ def node_logs(node_id, page=1):
 @login_required
 def tag_node(node_id):
     node = Node.query.filter(Node.id == node_id).first_or_404()
-    if request.is_xhr and request.method == 'POST':
+    if request.is_json and request.method == 'POST':
         node.tags = create_tags(*request.get_json())
         node.save()
         return jsonify({}), 202
@@ -306,7 +306,7 @@ def packs():
 @login_required
 def add_pack():
     form = UploadPackForm()
-    if form.validate_on_submit():
+    if form.is_submitted() and form.validate():
         pack = create_query_pack_from_upload(form.pack)
 
         # Only redirect back to the pack list if everything was successful
@@ -321,7 +321,7 @@ def add_pack():
 @login_required
 def tag_pack(pack_name):
     pack = Pack.query.filter(Pack.name == pack_name).first_or_404()
-    if request.is_xhr:
+    if request.is_json:
         if request.method == 'POST':
             pack.tags = create_tags(*request.get_json())
             pack.save()
@@ -348,7 +348,7 @@ def add_query():
     form = CreateQueryForm()
     form.set_choices()
 
-    if form.validate_on_submit():
+    if form.is_submitted() and form.validate():
         query = Query(name=form.name.data,
                       sql=form.sql.data,
                       interval=form.interval.data,
@@ -471,7 +471,7 @@ def add_distributed():
     form = AddDistributedQueryForm()
     form.set_choices()
 
-    if form.validate_on_submit():
+    if form.is_submitted() and form.validate():
         nodes = []
 
         if not form.nodes.data and not form.tags.data:
@@ -524,7 +524,7 @@ def query(query_id):
     query = Query.query.filter(Query.id == query_id).first_or_404()
     form = UpdateQueryForm(request.form)
 
-    if form.validate_on_submit():
+    if form.is_submitted() and form.validate():
         if form.packs.data:
             query.packs = Pack.query.filter(Pack.name.in_(form.packs.data)).all()
         else:
@@ -551,7 +551,7 @@ def query(query_id):
 @login_required
 def tag_query(query_id):
     query = Query.query.filter(Query.id == query_id).first_or_404()
-    if request.is_xhr:
+    if request.is_json:
         if request.method == 'POST':
             query.tags = create_tags(*request.get_json())
             query.save()
@@ -572,7 +572,7 @@ def files():
 def add_file():
     form = FilePathForm()
 
-    if form.validate_on_submit():
+    if form.is_submitted() and form.validate():
         file_path = FilePath(
             category=form.category.data,
             target_paths=form.target_paths.data.splitlines()
@@ -592,7 +592,7 @@ def file_path(file_path_id):
     file_path = FilePath.query.filter(FilePath.id == file_path_id).first_or_404()
     form = FilePathUpdateForm(request.form)
 
-    if form.validate_on_submit():
+    if form.is_submitted() and form.validate():
         file_path.tags = create_tags(*form.tags.data.splitlines())
         file_path.set_paths(*form.target_paths.data.splitlines())
         file_path = file_path.update(
@@ -610,7 +610,7 @@ def file_path(file_path_id):
 @login_required
 def tag_file(file_path_id):
     file_path = FilePath.query.filter(FilePath.id == file_path_id).first_or_404()
-    if request.is_xhr:
+    if request.is_json:
         if request.method == 'POST':
             file_path.tags = create_tags(*request.get_json())
             file_path.save()
@@ -624,7 +624,7 @@ def tag_file(file_path_id):
 def tags():
     tags = dict((t.value, {}) for t in Tag.query.all())
 
-    if request.is_xhr:
+    if request.is_json:
         return jsonify(tags=tags.keys())
 
     baseq = db.session.query(Tag.value, db.func.count(Tag.id))
@@ -645,7 +645,7 @@ def tags():
 @login_required
 def add_tag():
     form = CreateTagForm()
-    if form.validate_on_submit():
+    if form.is_submitted() and form.validate():
         create_tags(*form.value.data.splitlines())
         return redirect(url_for('manage.tags'))
 
@@ -703,7 +703,7 @@ def add_rule():
     form = CreateRuleForm()
     form.set_choices()
 
-    if form.validate_on_submit():
+    if form.is_submitted() and form.validate():
         rule = Rule(name=form.name.data,
                     alerters=form.alerters.data,
                     description=form.description.data,
@@ -723,7 +723,7 @@ def rule(rule_id):
     rule = Rule.query.filter(Rule.id == rule_id).first_or_404()
     form = UpdateRuleForm(request.form)
 
-    if form.validate_on_submit():
+    if form.is_submitted() and form.validate():
         rule = rule.update(name=form.name.data,
                            alerters=form.alerters.data,
                            description=form.description.data,
