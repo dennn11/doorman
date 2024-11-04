@@ -39,8 +39,7 @@ from doorman.utils import (
 
 blueprint = Blueprint('manage', __name__,
                       template_folder='../templates/manage',
-                      url_prefix='/manage')
-
+                      url_prefix='')
 
 @blueprint.context_processor
 def inject_models():
@@ -297,8 +296,27 @@ def packs():
             db.joinedload(Pack.tags),
             db.joinedload(Pack.queries),
             db.joinedload(Pack.queries, Query.packs, innerjoin=True)
+        ).limit(1).all()
+    sidebar = Pack.query \
+        .options(
+            db.joinedload(Pack.tags),
         ).all()
-    return render_template('packs.html', packs=packs)
+    return render_template('packs.html', packs=packs, sidebar=sidebar)
+
+@blueprint.route('packs/<int:pack_id>')
+@login_required
+def packs_specific(pack_id = None):
+    packs = Pack.query \
+        .options(
+            db.joinedload(Pack.tags),
+            db.joinedload(Pack.queries),
+            db.joinedload(Pack.queries, Query.packs, innerjoin=True)
+        ).filter(Pack.id == pack_id).all()
+    sidebar = Pack.query \
+        .options(
+            db.joinedload(Pack.tags),
+        ).all()
+    return render_template('packs.html', packs=packs, sidebar=sidebar)
 
 
 @blueprint.route('/packs/add', methods=['GET', 'POST'])
@@ -317,18 +335,32 @@ def add_pack():
     return render_template('pack.html', form=form)
 
 
-@blueprint.route('/pack/<string:pack_name>/tags', methods=['GET', 'POST'])
+@blueprint.route('/pack/<int:pack_id>/tags', methods=['GET', 'POST'])
 @login_required
-def tag_pack(pack_name):
-    pack = Pack.query.filter(Pack.name == pack_name).first_or_404()
+def tag_pack(pack_id):
+    pack = Pack.query.filter(Pack.id == pack_id).first_or_404()
     if request.is_json:
         if request.method == 'POST':
             pack.tags = create_tags(*request.get_json())
             pack.save()
         return jsonify(tags=[t.value for t in pack.tags])
 
-    return redirect(url_for('manage.packs'))
+    return redirect(url_for('manage.packs_specific', pack_id=pack.id))
 
+@blueprint.route('/pack/<int:pack_id>/edit', methods=['GET', 'POST'])
+@login_required
+def edit_pack_info(pack_id):
+    pack = Pack.query.filter(Pack.id == pack_id).first_or_404()
+    form = UploadPackForm()
+
+    if form.is_submitted() and form.validate():
+        pack = create_query_pack_from_upload(form.pack, pack=pack)
+
+        if pack is not None:
+            return redirect(url_for('manage.packs', _anchor=pack.name))
+
+    flash_errors(form)
+    return render_template('pack.html', form=form)
 
 @blueprint.route('/queries')
 @login_required

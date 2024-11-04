@@ -18,7 +18,7 @@ from doorman.tasks import analyze_result, notify_of_node_enrollment
 from doorman.utils import process_result
 
 
-blueprint = Blueprint('api', __name__)
+blueprint = Blueprint('api', __name__, url_prefix='/api')
 
 
 def node_required(f):
