@@ -53,6 +53,6 @@ class SlackAlerter(AbstractAlerterPlugin):
         )
 
         if not resp.ok:
-            self.logger.warn('Could not trigger Slack alert!')
+            self.logger.warning('Could not trigger Slack alert!')
 
         self.logger.debug('Response from Slack: %r', resp.content)

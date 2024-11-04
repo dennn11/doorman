@@ -127,7 +127,7 @@ def enroll():
     host_identifier = request_json.get('host_identifier')
 
     if node and node.enrolled_on:
-        current_app.logger.warn(
+        current_app.logger.warning(
             "%s - %s already enrolled on %s, returning existing node_key",
             request.remote_addr, node, node.enrolled_on
         )

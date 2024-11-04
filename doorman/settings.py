@@ -64,14 +64,15 @@ class Config(object):
         #'CREATE TABLE example_extension_table(thing1 INTEGER, thing2 TEXT);',
     ]
 
-    BROKER_URL = 'redis://localhost:6379/0'
-    CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+    # Celery configuration
+    
 
-    CELERY_ACCEPT_CONTENT = ['djson', 'application/x-djson']
-    CELERY_EVENT_SERIALIZER = 'djson'
-    CELERY_RESULT_SERIALIZER = 'djson'
-    CELERY_TASK_SERIALIZER = 'djson'
-    CELERYBEAT_SCHEDULE = {
+    ACCEPT_CONTENT = ['djson', 'application/x-djson']
+    EVENT_SERIALIZER = 'djson'
+    RESULT_SERIALIZER = 'djson'
+    TASK_SERIALIZER = 'djson'
+    broker_connection_retry_on_startup = True
+    beat_schedule = {
         'alert-when-node-goes-offline': {
             'task': 'doorman.tasks.alert_when_node_goes_offline',
             'schedule': 86400,
@@ -232,7 +233,7 @@ class ProdConfig(Config):
     ]
     DOORMAN_MINIMUM_OSQUERY_LOG_LEVEL = 1
 
-    BROKER_URL = ''
+    broker_url = ''
     CELERY_RESULT_BACKEND = ''
 
 
@@ -296,7 +297,7 @@ if os.environ.get('DYNO'):
         DOORMAN_LOGGING_FILENAME = '-'  # handled specially - stdout
 
         SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
-        BROKER_URL = os.environ['REDIS_URL']
+        broker_url = os.environ['REDIS_URL']
         CELERY_RESULT_BACKEND = os.environ['REDIS_URL']
 
         try:

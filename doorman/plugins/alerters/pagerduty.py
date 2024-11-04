@@ -66,6 +66,6 @@ class PagerDutyAlerter(AbstractAlerterPlugin):
         )
 
         if not resp.ok:
-            self.logger.warn('Could not trigger PagerDuty alert!')
+            self.logger.warning('Could not trigger PagerDuty alert!')
 
         self.logger.debug('Response from PagerDuty: %r', resp.content)
