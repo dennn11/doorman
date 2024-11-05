@@ -1,16 +1,16 @@
 // place any jQuery/helper plugins in here, instead of separate, slower script files.
 
-$(function() {
+$(document).ready(function() {
 
-    var csrftoken = $('meta[name=csrf-token]').attr('content')
+    var csrftoken = $('meta[name=csrf-token]').attr('content');
 
     $.ajaxSetup({
         beforeSend: function(xhr, settings) {
             if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
-                xhr.setRequestHeader("X-CSRFToken", csrftoken)
+                xhr.setRequestHeader("X-CSRFToken", csrftoken);
             }
         }
-    })
+    });
 
     $(function(){
         var hash = window.location.hash;
@@ -24,91 +24,85 @@ $(function() {
 
     });
 
-    $(".tagsinput").tagsinput({
-        tagClass: "label label-default",
-        trimValue: true
+    $('.tagsinput').each(function() {
+        var $input = $(this);
+        var uri = $input.data('uri');
+    
+        $input.selectize({
+            delimiter: ',',
+            persist: false,
+            create: function(input) {
+                return {
+                    value: input,
+                    text: input
+                };
+            },
+            onDelete: function(values) {
+                return confirm(values.length > 1 ? 'Are you sure you want to remove these ' + values.length + ' items?' : 'Are you sure you want to remove "' + values[0] + '"?');
+            },
+            onItemAdd: function(value) {
+                var data = JSON.stringify(this.items);
+    
+                $.ajax({
+                    url: uri,
+                    contentType: "application/json",
+                    data: data,
+                    dataType: "json",
+                    type: "POST"
+                }).done(function (data, textStatus, jqXHR) {
+                    console.log(jqXHR.status);
+                });
+            },
+            onItemRemove: function(value) {
+                var data = JSON.stringify(this.items);
+    
+                $.ajax({
+                    url: uri,
+                    contentType: "application/json",
+                    data: data,
+                    dataType: "json",
+                    type: "POST"
+                }).done(function (data, textStatus, jqXHR) {
+                    console.log(jqXHR.status);
+                });
+            }
+        });
     });
-
-
-    $('.tagsinput').on('itemAdded', function(event) {
-
-        var data = JSON.stringify([]);
-
-        if ($(this).val() != null)
-            data = JSON.stringify($(this).tagsinput('items'));
-
-        $.ajax({
-            url: $(this).data('uri'),
-            contentType: "application/json",
-            data: data,
-            dataType: "json",
-            type: "POST"
-        }).done(function (data, textStatus, jqXHR) {
-            console.log(jqXHR.status);
-        })
-
-    });
-
-
-    $('.tagsinput').on('itemRemoved', function(event) {
-
-        var data = JSON.stringify([]);
-
-        if ($(this).val() != null)
-            data = JSON.stringify($(this).tagsinput('items'));
-
-        $.ajax({
-            url: $(this).data('uri'),
-            contentType: "application/json",
-            data: data,
-            dataType: "json",
-            type: "POST"
-        }).done(function (data, textStatus, jqXHR) {
-            console.log(jqXHR.status);
-        })
-
-    });
-
 
     $('.glyphicon-trash').on('click', function(event) {
-
-        var tr = $(this).parents('tr');
+        var tr = $(this).closest('tr');
 
         $.ajax({
             url: $(this).data('uri'),
             contentType: "application/json",
             type: "DELETE"
         }).done(function (data, textStatus, jqXHR) {
-            $(tr).remove();
+            tr.remove();
             console.log(jqXHR.status);
-        })
-
-    })
+        });
+    });
 
     $('.activate-node').on('click', function(event) {
-         if ($(this).data('uri') == null || $(this).data('uri') == "")
-            return;
+        if (!$(this).data('uri')) return;
 
         var el = $(this);
 
         $.post($(this).data('uri'), {
             is_active: $(this).hasClass('glyphicon-unchecked') || null
         }).done(function (data, textStatus, jqXHR) {
-            $(el).toggleClass('glyphicon-check glyphicon-unchecked');
+            el.toggleClass('glyphicon-check glyphicon-unchecked');
         });
-
-    })
+    });
 
     $('body').scrollspy({
         target: '.bs-docs-sidebar',
         offset: 70
-    })
+    });
 
-    $('#sidebar').affix({
-        offset: {
-            top: 0
-        }
-    })
+    $('#sidebar').css({
+        position: 'sticky',
+        top: '0'
+    });
 
     // --------------------------------------------------------------------------------
 
@@ -266,26 +260,26 @@ $(function() {
         $queryBuilder.on('getRuleInput.queryBuilder.filter', function (evt, rule, name) {
             if (rule.operator.type.match(/^column_/) && name.match(/value_0$/)) {
                 var el = $(evt.value);
-                $(el).attr('placeholder', 'column name');;
+                el.attr('placeholder', 'column name');
                 evt.value = el[0].outerHTML;
             }
         });
 
         $('#submit-button').on('click', function(e) {
-          var $builder = $queryBuilder;
+            var $builder = $queryBuilder;
 
-          if (!$builder) {
+            if (!$builder) {
+                return true;
+            }
+
+            if (!$builder.queryBuilder('validate')) {
+                e.preventDefault();
+                return false;
+            }
+
+            var rules = JSON.stringify($builder.queryBuilder('getRules'));
+            $('#rules-hidden').val(rules);
             return true;
-          }
-
-          if (!$builder.queryBuilder('validate')) {
-            e.preventDefault();
-            return false;
-          }
-
-          var rules = JSON.stringify($builder.queryBuilder('getRules'));
-          $('#rules-hidden').val(rules);
-          return true;
         });
     }
 

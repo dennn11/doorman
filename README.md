@@ -145,16 +145,17 @@ Setting       | Description
     openssl req -x509 -sha256 -nodes -days 365 -newkey rsa:2048 -keyout private.key -out certificate.crt
     ~~~
 
-1. Install Javascript dependencies with `bower`:
+1. Install Javascript dependencies with `npm`:
 
     ~~~
-    bower install
+    npm install
+    npm run postinstall
     ~~~
 
 1. Start the doormany celery workers:
 
     ~~~
-    celery -A doorman.worker:celery worker -l INFO
+    celery -A doorman.worker:celery worker -P gevent -E -l INFO
     ~~~
 
 1. Start doorman by running:

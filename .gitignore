@@ -162,6 +162,7 @@ database/
 doorman/static/css/bootstrap.css
 doorman/static/libs/
 doorman/static/public/
+node_modules/
 
 # Vagrant artifacts
 .vagrant

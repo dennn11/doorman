@@ -25,6 +25,7 @@ flask-paginate==2024.4.12
 Flask-SQLAlchemy==3.1.1
 flask-talisman==1.1.0
 Flask-WTF==1.2.1
+gevent==24.10.3
 globre==0.1.5
 greenlet==3.1.1
 iniconfig==2.0.0
@@ -58,3 +59,5 @@ wcwidth==0.2.13
 webassets==2.0
 Werkzeug==3.0.4
 WTForms==3.1.2
+zope.event==5.0
+zope.interface==7.1.1

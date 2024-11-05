@@ -1,18 +1,15 @@
 {
   "name": "doorman",
   "version": "1.0.0",
-  "description": "[![Build Status](https://travis-ci.org/mwielgoszewski/doorman.svg?branch=master)](https://travis-ci.org/mwielgoszewski/doorman) [![Code Climate](https://codeclimate.com/github/mwielgoszewski/doorman/badges/gpa.svg)](https://codeclimate.com/github/mwielgoszewski/doorman)",
+  "description": "Doorman project",
   "main": "index.js",
-  "directories": {
-    "doc": "docs",
-    "test": "tests"
-  },
   "scripts": {
-    "postinstall": "bower install"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "mkdir -p doorman/static/node_modules && cp -r node_modules/ doorman/static/"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mwielgoszewski/doorman"
+    "url": "git+https://github.com/mwielgoszewski/doorman.git"
   },
   "author": "",
   "license": "ISC",
@@ -21,7 +18,13 @@
   },
   "homepage": "https://github.com/mwielgoszewski/doorman#readme",
   "dependencies": {
-    "bower": "^1.7.9",
-    "less": "^2.7.1"
-  }
+    "@fortawesome/fontawesome-free": "^6.6.0",
+    "@selectize/selectize": "^0.15.2",
+    "bootstrap": "^5.1.3",
+    "bootstrap-vertical-tabs": "^1.2.2",
+    "interactjs": "^1.10.11",
+    "jquery": "^3.6.0",
+    "jQuery-QueryBuilder": "^3.0.0"
+  },
+  "keywords": []
 }
