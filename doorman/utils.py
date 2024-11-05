@@ -85,7 +85,7 @@ def assemble_distributed_queries(node):
     It is the responsibility of the caller to commit or rollback on the
     current database session.
     '''
-    now = dt.datetime.utcnow()
+    now = dt.datetime.now()
     query = db.session.query(DistributedQueryTask) \
         .join(DistributedQuery) \
         .filter(
@@ -103,7 +103,6 @@ def assemble_distributed_queries(node):
         task.update(status=DistributedQueryTask.PENDING,
                     timestamp=now,
                     commit=False)
-
         # add this query to the session, but don't commit until we're
         # as sure as we possibly can be that it's been received by the
         # osqueryd client. unfortunately, there are no guarantees though.
@@ -185,7 +184,7 @@ def get_node_health(node):
     checkin_interval = current_app.config['DOORMAN_CHECKIN_INTERVAL']
     if isinstance(checkin_interval, (int, float)):
         checkin_interval = dt.timedelta(seconds=checkin_interval)
-    if (dt.datetime.utcnow() - node.last_checkin) > checkin_interval:
+    if (dt.datetime.now() - node.last_checkin) > checkin_interval:
         return u'danger'
     else:
         return ''

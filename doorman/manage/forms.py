@@ -18,7 +18,7 @@ from wtforms.fields import (
 from wtforms.validators import DataRequired, Optional, ValidationError
 from wtforms.widgets import HiddenInput
 
-from doorman.models import Rule
+from doorman.models import Rule, Pack
 from doorman.utils import validate_osquery_query
 
 
@@ -78,9 +78,39 @@ class QueryForm(Form):
 
     def set_choices(self):
         from doorman.models import Pack
-        self.packs.choices = Pack.query.with_entities(Pack.name, Pack.name).all()
+        self.packs.choices = [pack.name for pack in Pack.query.with_entities(Pack.name).all()]
 
+class PackForm(Form):
+    name = StringField('Name', validators=[DataRequired()])
+    platform = StringField('Platform', validators=[Optional()])
+    version = StringField('Version', validators=[Optional()])
+    description = TextAreaField('Description', validators=[Optional()])
+    shard = IntegerField('Shard', validators=[Optional()])
+    tags = TextAreaField("Tags")
 
+class UpdatePackForm(PackForm):
+    def __init__(self, *args, **kwargs):
+        super(UpdatePackForm, self).__init__(*args, **kwargs)
+        pack = kwargs.pop('obj', None)
+        if pack:
+            self.tags.process_data('\n'.join(t.value for t in pack.tags))
+
+    def validate(self):
+        if self.shard.data is not None and (self.shard.data > 100 or self.shard.data < 0):
+            self.shard.errors.append(
+                u"Shard must be between 0 and 100"
+            )
+            return False
+    
+        query = Pack.query.filter(Pack.name == self.name.data).first()
+        if not query:
+            self.name.errors.append(
+                u"Updating an inexistent pack".format(
+                self.name.data)
+            )
+            return False
+        return True
+    
 class UpdateQueryForm(QueryForm):
 
     def __init__(self, *args, **kwargs):

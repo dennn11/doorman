@@ -4,7 +4,6 @@ import os
 import glob
 import click
 
-from flask_assets import Environment, Bundle
 from flask_migrate import Migrate
 import ssl
 

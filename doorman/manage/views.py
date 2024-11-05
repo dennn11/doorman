@@ -21,6 +21,7 @@ from .forms import (
     UpdateQueryForm,
     CreateTagForm,
     UploadPackForm,
+    UpdatePackForm,
     FilePathForm,
     FilePathUpdateForm,
     CreateRuleForm,
@@ -297,10 +298,7 @@ def packs():
             db.joinedload(Pack.queries),
             db.joinedload(Pack.queries, Query.packs, innerjoin=True)
         ).limit(1).all()
-    sidebar = Pack.query \
-        .options(
-            db.joinedload(Pack.tags),
-        ).all()
+    sidebar = Pack.query.with_entities(Pack.id, Pack.name).all()
     return render_template('packs.html', packs=packs, sidebar=sidebar)
 
 @blueprint.route('packs/<int:pack_id>')
@@ -312,12 +310,27 @@ def packs_specific(pack_id = None):
             db.joinedload(Pack.queries),
             db.joinedload(Pack.queries, Query.packs, innerjoin=True)
         ).filter(Pack.id == pack_id).all()
-    sidebar = Pack.query \
-        .options(
-            db.joinedload(Pack.tags),
-        ).all()
+    sidebar = Pack.query.with_entities(Pack.id, Pack.name).all()
     return render_template('packs.html', packs=packs, sidebar=sidebar)
 
+@blueprint.route('packs/<int:pack_id>/detail', methods=['GET','POST'])
+@login_required
+def packs_detail(pack_id=None):
+    packs_detail = Pack.query.options(
+        db.joinedload(Pack.tags)
+    ).filter(Pack.id == pack_id).first_or_404()
+    form = UpdatePackForm(obj=packs_detail)
+    if form.is_submitted() and form.validate():
+        packs_detail.name = form.name.data
+        packs_detail.platform = form.platform.data
+        packs_detail.version = form.version.data
+        packs_detail.description = form.description.data
+        packs_detail.shard = form.shard.data
+        packs_detail.tags = create_tags(*form.tags.data.splitlines())
+        packs_detail.update()
+        return redirect(url_for('manage.packs_specific', pack_id= pack_id))
+    sidebar = Pack.query.with_entities(Pack.id, Pack.name).all()
+    return render_template('packs.html',packs_detail=packs_detail, sidebar=sidebar, form=form)
 
 @blueprint.route('/packs/add', methods=['GET', 'POST'])
 @blueprint.route('/packs/upload', methods=['POST'])
@@ -511,6 +524,9 @@ def add_distributed():
             nodes = Node.query.all()
 
         if form.nodes.data:
+            # TODO is the tuple extracted properly
+            form.nodes.data = [node_data[0] for node_data in form.nodes.data]
+            print(form.nodes.data)
             nodes.extend(
                 Node.query.filter(
                     Node.node_key.in_(form.nodes.data)
