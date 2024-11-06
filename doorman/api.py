@@ -206,7 +206,7 @@ def enroll():
 @blueprint.route('/config', methods=['POST', 'PUT'])
 @blueprint.route('/v1/config', methods=['POST', 'PUT'])
 @node_required
-def configuration(node=None):
+def configuration(node:Node=None):
     '''
     Retrieve an osquery configuration for a given node.
 

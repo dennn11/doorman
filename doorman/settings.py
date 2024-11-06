@@ -6,14 +6,14 @@ import os
 basedir = os.path.abspath(os.path.dirname(__file__))
 
 class Config(object):
-    DOORMAN_CERTFILE = os.path.join(basedir, '../certs/osman.service.local.pem')
-    DOORMAN_KEYFILE = os.path.join(basedir, '../certs/osman.service.local.key')
+    DOORMAN_CERTFILE = os.path.join(basedir, '../certs/doorman.service.local.pem')
+    DOORMAN_KEYFILE = os.path.join(basedir, '../certs/doorman.service.local.key')
     DOORMAN_CAFILE = os.path.join(basedir, '../certs/IGP.pem')
     SECRET_KEY = b2a_hex(os.urandom(20))
 
     # Set the following to ensure Celery workers can construct an
     # external URL via `url_for`.
-    # SERVER_NAME = "doorman.domain.com"
+    SERVER_NAME = "localhost:5000"
     PREFERRED_URL_SCHEME = "https"
 
     # PREFERRED_URL_SCHEME will not work without SERVER_NAME configured,

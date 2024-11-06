@@ -3,11 +3,7 @@ from flask_assets import Bundle, Environment
 import os
 
 css = Bundle(
-    Bundle('css/bootstrap.less',
-           depends=('**/*.less'),
-           output='css/bootstrap.css',
-           filters='less',
-    ),
+    'node_modules/bootstrap/dist/css/bootstrap.css',
     'node_modules/bootstrap-vertical-tabs/bootstrap.vertical-tabs.css',
     'node_modules/jQuery-QueryBuilder/dist/css/query-builder.default.css',
     'node_modules/@selectize/selectize/dist/css/selectize.css',
