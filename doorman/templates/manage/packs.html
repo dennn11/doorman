@@ -5,7 +5,7 @@
         <div class="row">
             <div class="col-md-9">
                 <h1>packs</h1>
-                {% if packs is defined %}
+                {% if packs is defined and packs %}
                 {% with pack=packs[0] %}
                 <h2 id="{{ pack.name }}"><a href="{{ url_for('manage.packs_detail', pack_id=pack.id) }}">{{ pack.name }}</a></h2>
                 <p>
